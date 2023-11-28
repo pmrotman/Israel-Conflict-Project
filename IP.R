@@ -1,11 +1,5 @@
-#
-# This is a Shiny web application. You can run the application by clicking
-# the 'Run App' button above.
-#
-# Find out more about building applications with Shiny here:
-#
-#    http://shiny.rstudio.com/
-#
+#Shiny web app to visualize data about Israel-Palestine Conflict
+#Author: Pierce Rotman
 
 library(shiny)
 library(ggplot2)
@@ -26,29 +20,26 @@ data <- data %>%
   filter(!(sub_event_type %in% c("Disrupted weapons use", "Change to group/activity", "Other", 
                                  "Government regains territory", "Agreement", 
                                  "Headquarters or base established", "Non-violent transfer of territory"))) %>%
-  filter(country %in% c("Israel", "Palestine") & admin1 != "")
+  filter(country %in% c("Israel", "Palestine"))
 locations <- unique(data$admin1)
 events <- unique(data$sub_event_type)
 data$event_date <- as.Date(data$event_date, format = "%d %B %Y")
 data$event_date <- format(data$event_date, format = "%Y-%m-%d")
 data$event_date <- as.Date(data$event_date, format = "%Y-%m-%d")
 
-# Define UI for application that draws a histogram
+
 ui <- fluidPage(theme = shinytheme("superhero"),
                 
                 navbarPage("Israel-Palestine Conflict 2016-Present",
                            
-                           tabPanel("Data Selection Tab",
+                           tabPanel("Data Selection",
                                     titlePanel("Violence in Israel and Palestinian Territories"),
-                                    
-                                    
                                     sidebarLayout(
                                       sidebarPanel(
                                         dateRangeInput(label = "Select a date:", inputId = "Date", format = "yyyy-mm-dd", min = "2016-01-01", start = "2023-01-01", end = "2023-11-24"),
                                         checkboxGroupInput(label = "Select event types:", inputId = "Sub", choices = events, selected = events),
                                         checkboxGroupInput(label = "Select locations:", inputId = "Loc", choices = locations, selected = locations),
                                       ),
-                                      
                                       mainPanel(
                                         actionButton(inputId = "plot", "Plot Map and Perform PCA", style = "color: orange"),
                                         verbatimTextOutput("info"),
@@ -61,6 +52,7 @@ ui <- fluidPage(theme = shinytheme("superhero"),
                            ),
                            
                            tabPanel("Map",
+                                    titlePanel("Violence in Israel and Palestinian Territories"),
                                     mainPanel(
                                       fluidRow(
                                         column(8,
@@ -74,6 +66,7 @@ ui <- fluidPage(theme = shinytheme("superhero"),
                                     )),
                            
                            tabPanel("Principal Component Analysis",
+                                    titlePanel("Violence in Israel and Palestinian Territories"),
                                     mainPanel(
                                          plotOutput("plot_pca_data"),
                                          textOutput("not_enough"),
@@ -82,11 +75,9 @@ ui <- fluidPage(theme = shinytheme("superhero"),
                                         )
                            )
                 )
-                # Application title
                 
 )
 
-# Define server logic required to draw a histogram
 server <- function(input, output) {
   output$info <- renderText({
     start_date <- as.Date(input$Date[1])
@@ -112,7 +103,13 @@ server <- function(input, output) {
     return(fdata)
   })
   
+  #Display filtered data
+  output$fdata <- renderTable({
+    d <- filtered_data()
+    dplyr::select(d, event_date, sub_event_type, actor1, actor2)
+  })
   
+  #Create data visualizations
   observeEvent(input$plot, {
     req(filtered_data())
     #Draw Map
@@ -155,7 +152,6 @@ server <- function(input, output) {
     
     
     #Plot PCA
-    
     pcadata <- filtered_data() %>%
       group_by(admin1, sub_event_type) %>%
       summarise(count = n())
@@ -198,17 +194,9 @@ server <- function(input, output) {
     
     
   })
-  
-  output$fdata <- renderTable({
-    d <- filtered_data()
-    dplyr::select(d, event_date, sub_event_type, actor1, actor2)
-  })
 
-
+  #Display data for clicked map-point
   observeEvent(input$map_marker_click, {
-    
-    
-    
     pt <- input$map_marker_click
     lat <- pt$lat
     lng <- pt$lng
@@ -236,6 +224,7 @@ server <- function(input, output) {
         )
     })
     
+    #Display notes for selected rows
     observe({
       rows <- input$click_rows_selected
       if (!is.null(rows)) {
@@ -246,5 +235,6 @@ server <- function(input, output) {
     })
   })
 }
+
 # Run the application 
 shinyApp(ui = ui, server = server)
