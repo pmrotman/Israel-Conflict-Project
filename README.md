@@ -4,6 +4,7 @@ R-shiny app that allows a user to filter data on the Israel-Palestine conflict s
 
 Usage:
 To run the app in an R environment, run the command: runGitHub("Israel-Conflict-Project", "pmrotman", subdir = "IP.R"). 
+To run the app on the web, utilize the following link: https://pmrotman.shinyapps.io/israel-conflict-project/. 
 In three tabs, the app allows the user to view data, plot a map of the data, and visualize the data in a bar chart and perform a PCA on region and event type.
 On the Data Selection tab, the user filters the data, selecting a date range, event types, and regions. The user can view several columns of the data and select a plot button.
 Once the plot button has been selected, a map with all selected data points is generated in the Map tab. The user can select points on the map to display data. If the user then selects a row, the "notes" column of the data set will be output below.
