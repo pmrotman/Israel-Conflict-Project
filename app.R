@@ -35,7 +35,7 @@ ui <- fluidPage(theme = shinytheme("superhero"),
                                     titlePanel("Violence in Israel and Palestinian Territories"),
                                     sidebarLayout(
                                       sidebarPanel(
-                                        dateRangeInput(label = "Select a date:", inputId = "Date", format = "yyyy-mm-dd", min = "2016-01-01", start = "2023-01-01", end = "2023-11-24"),
+                                        dateRangeInput(label = "Select a date:", inputId = "Date", format = "yyyy-mm-dd", min = "2016-01-01", max = "2023-11-17", start = "2023-01-01", end = "2023-11-17"),
                                         checkboxGroupInput(label = "Select event types:", inputId = "Sub", choices = events, selected = events),
                                         checkboxGroupInput(label = "Select locations:", inputId = "Loc", choices = locations, selected = locations),
                                       ),
