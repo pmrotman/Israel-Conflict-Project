@@ -19,8 +19,7 @@ data <- data %>%
   filter(grepl("Israel", actor1, actor2))%>%
   filter(!(sub_event_type %in% c("Disrupted weapons use", "Change to group/activity", "Other", 
                                  "Government regains territory", "Agreement", 
-                                 "Headquarters or base established", "Non-violent transfer of territory"))) %>%
-  filter(country %in% c("Israel", "Palestine"))
+                                 "Headquarters or base established", "Non-violent transfer of territory")))
 locations <- unique(data$admin1)
 events <- unique(data$sub_event_type)
 data$event_date <- as.Date(data$event_date, format = "%d %B %Y")
@@ -42,6 +41,7 @@ ui <- fluidPage(theme = shinytheme("superhero"),
                                       ),
                                       mainPanel(
                                         actionButton(inputId = "plot", "Plot Map and Perform PCA", style = "color: orange"),
+                                        tableOutput("loc_event"),
                                         verbatimTextOutput("info"),
                                         div(
                                           style = "max-height: 500px; overflow-y: auto; max-width: 1000px; overflow-x: auto",
@@ -101,6 +101,14 @@ server <- function(input, output) {
       filter(sub_event_type %in% events) %>%
       mutate(event_date = format(event_date, "%Y-%m-%d"))
     return(fdata)
+  })
+  
+  #Display grouped filtered data
+  output$loc_event <- renderTable({
+    loc_event <- filtered_data() %>%
+      group_by(admin1, sub_event_type) %>%
+      summarise(count = n())
+    loc_event <- pivot_wider(loc_event, values_from = count, names_from = admin1, values_fill = 0)
   })
   
   #Display filtered data
@@ -220,7 +228,7 @@ server <- function(input, output) {
       ) %>%
         formatStyle(
           names(clickpt),
-          color = "blue"
+          color = "white"
         )
     })
     
